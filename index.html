@@ -1,0 +1,1358 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>💖 Agenda Andrea — Pulgosa</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+
+<style>
+/* ════════════════════════════════════════════════════════
+   VARIABLES
+════════════════════════════════════════════════════════ */
+:root {
+  --cream:      #fdf8f5;
+  --white:      #ffffff;
+  --rose:       #ff8fa3;
+  --rose-light: #fff0f3;
+  --rose-mid:   #ffd6de;
+  --rose-dark:  #e8436a;
+  --gold:       #c9a96e;
+  --gold-light: #fdf3e3;
+  --gold-mid:   #f0d9ab;
+  --mint:       #a8ddc9;
+  --mint-light: #edfaf5;
+  --lavender:   #c4b5fd;
+  --lav-light:  #f5f3ff;
+  --sky:        #93c5fd;
+  --sky-light:  #eff6ff;
+  --gray-50:    #f9fafb;
+  --gray-100:   #f3f4f6;
+  --gray-200:   #e5e7eb;
+  --gray-300:   #d1d5db;
+  --gray-400:   #9ca3af;
+  --gray-600:   #4b5563;
+  --gray-700:   #374151;
+  --gray-800:   #1f2937;
+  --shadow-sm:  0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+  --shadow-md:  0 4px 16px rgba(0,0,0,.07), 0 2px 6px rgba(0,0,0,.05);
+  --shadow-lg:  0 10px 40px rgba(0,0,0,.10), 0 4px 12px rgba(0,0,0,.06);
+  --radius-sm:  12px;
+  --radius-md:  20px;
+  --radius-lg:  28px;
+  --font-body:  'Lato', sans-serif;
+  --font-serif: 'Playfair Display', Georgia, serif;
+  --ease:       cubic-bezier(.4,0,.2,1);
+  --spring:     cubic-bezier(.34,1.56,.64,1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--cream);
+  color: var(--gray-800);
+  min-height: 100vh;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ════════════════════════════════════════════════════════
+   SCROLLBARS
+════════════════════════════════════════════════════════ */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--rose-mid); border-radius: 6px; }
+
+/* ════════════════════════════════════════════════════════
+   LAYOUT
+════════════════════════════════════════════════════════ */
+.app { max-width: 1120px; margin: 0 auto; padding: 0 20px 72px; }
+
+/* ════════════════════════════════════════════════════════
+   HEADER
+════════════════════════════════════════════════════════ */
+.header {
+  padding: 48px 0 32px;
+  animation: fadeUp .6s var(--ease) both;
+}
+.header-top { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }
+.header-greeting {
+  font-family: var(--font-serif);
+  font-size: clamp(1.9rem, 5vw, 3rem);
+  font-weight: 700;
+  color: var(--gray-800);
+  line-height: 1.15;
+}
+.header-greeting .accent { color: var(--rose); }
+.header-date { font-size: .85rem; color: var(--gray-400); font-weight: 400; margin-top: 4px; letter-spacing: .2px; }
+
+.weather-pill {
+  display: flex; align-items: center; gap: 7px;
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: 50px;
+  padding: 8px 16px;
+  font-size: .82rem; font-weight: 700; color: var(--gray-600);
+  box-shadow: var(--shadow-sm);
+  white-space: nowrap;
+}
+
+.quote-bar {
+  background: linear-gradient(135deg, var(--rose-light) 0%, var(--gold-light) 100%);
+  border: 1px solid var(--rose-mid);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  display: flex; align-items: center; gap: 12px;
+  max-width: 680px;
+}
+.quote-bar p {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: .97rem;
+  color: var(--gray-600);
+  line-height: 1.55;
+}
+
+/* ════════════════════════════════════════════════════════
+   GRID
+════════════════════════════════════════════════════════ */
+.grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 20px; }
+
+/* ════════════════════════════════════════════════════════
+   CARD
+════════════════════════════════════════════════════════ */
+.card {
+  background: var(--white);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  border: 1px solid rgba(0,0,0,.05);
+  padding: 26px 24px;
+  animation: fadeUp .55s var(--ease) both;
+}
+@keyframes fadeUp {
+  from { opacity:0; transform: translateY(22px); }
+  to   { opacity:1; transform: translateY(0); }
+}
+.card:nth-child(1){animation-delay:.05s}.card:nth-child(2){animation-delay:.10s}
+.card:nth-child(3){animation-delay:.13s}.card:nth-child(4){animation-delay:.16s}
+.card:nth-child(5){animation-delay:.19s}.card:nth-child(6){animation-delay:.22s}
+.card:nth-child(7){animation-delay:.25s}.card:nth-child(8){animation-delay:.28s}
+.card:nth-child(9){animation-delay:.31s}.card:nth-child(10){animation-delay:.34s}
+
+.card-title {
+  font-family: var(--font-serif);
+  font-size: 1.15rem; font-weight: 700;
+  color: var(--gray-800);
+  margin-bottom: 18px;
+  display: flex; align-items: center; gap: 9px;
+}
+.iw {
+  width: 32px; height: 32px;
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.iw-rose   { background: var(--rose-light);   color: var(--rose); }
+.iw-gold   { background: var(--gold-light);   color: var(--gold); }
+.iw-mint   { background: var(--mint-light);   color: #2d9e78; }
+.iw-lav    { background: var(--lav-light);    color: #7c3aed; }
+.iw-sky    { background: var(--sky-light);    color: #2563eb; }
+
+/* columns */
+.c5  { grid-column: span 5; }
+.c7  { grid-column: span 7; }
+.c6  { grid-column: span 6; }
+.c4  { grid-column: span 4; }
+.c8  { grid-column: span 8; }
+.c12 { grid-column: span 12; }
+
+@media (max-width: 860px) {
+  .c4,.c5,.c6,.c7,.c8 { grid-column: span 12; }
+}
+@media (max-width: 500px) {
+  .card { padding: 18px 14px; }
+}
+
+/* ════════════════════════════════════════════════════════
+   SECTION DIVIDER
+════════════════════════════════════════════════════════ */
+.divider {
+  grid-column: span 12;
+  display: flex; align-items: center; gap: 12px;
+  padding: 6px 0;
+}
+.divider span {
+  font-family: var(--font-serif);
+  font-size: .92rem; font-weight: 500;
+  color: var(--gray-400); white-space: nowrap;
+}
+.divider::before,.divider::after { content:''; flex:1; height:1px; background: var(--gray-200); }
+
+/* ════════════════════════════════════════════════════════
+   BUTTONS
+════════════════════════════════════════════════════════ */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 9px 18px;
+  border: none; border-radius: 50px;
+  font-family: var(--font-body); font-size: .84rem; font-weight: 700;
+  cursor: pointer; transition: .2s var(--ease); letter-spacing: .2px;
+}
+.btn:hover  { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(0,0,0,.12); }
+.btn:active { transform: scale(.97); box-shadow: none; }
+.btn-rose { background: var(--rose); color: #fff; }
+.btn-rose:hover { background: #ff6e8c; }
+.btn-ghost { background: var(--gray-100); color: var(--gray-600); }
+.btn-ghost:hover { background: var(--gray-200); }
+.btn-gold { background: var(--gold); color: #fff; }
+.btn-gold:hover { background: #b89258; }
+.btn-mint { background: var(--mint); color: #1a5c42; }
+.btn-mint:hover { background: #8fcfb9; }
+
+/* Inputs base */
+.inp {
+  padding: 9px 13px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body); font-size: .88rem;
+  color: var(--gray-800); background: var(--gray-50);
+  outline: none; transition: border-color .2s var(--ease), background .2s;
+  width: 100%;
+}
+.inp::placeholder { color: var(--gray-400); }
+.inp:focus { border-color: var(--rose); background: #fff; }
+
+/* ════════════════════════════════════════════════════════
+   TO-DO LIST
+════════════════════════════════════════════════════════ */
+.todo-row { display: flex; gap: 8px; margin-bottom: 14px; }
+.todo-row .inp { flex:1; }
+.todo-scroll { display:flex; flex-direction:column; gap:7px; max-height:300px; overflow-y:auto; padding-right:3px; }
+
+.todo-item {
+  display:flex; align-items:center; gap:10px;
+  padding: 9px 11px;
+  background: var(--gray-50); border: 1px solid var(--gray-100);
+  border-radius: var(--radius-sm);
+  transition: .18s var(--ease);
+  animation: slideIn .22s var(--ease) both;
+}
+@keyframes slideIn { from{opacity:0;transform:translateX(-8px)} to{opacity:1;transform:none} }
+.todo-item:hover { border-color: var(--rose-mid); background: var(--rose-light); }
+
+.chk {
+  width:20px; height:20px; border-radius:50%;
+  border: 2px solid var(--gray-300);
+  cursor:pointer; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  color:transparent; transition:.18s var(--ease);
+}
+.chk:hover { border-color: var(--rose); }
+.todo-item.done .chk { background: var(--rose); border-color: var(--rose); color:#fff; }
+.todo-item.done .todo-txt { text-decoration: line-through; color: var(--gray-400); }
+.todo-txt { flex:1; font-size:.88rem; color: var(--gray-700); transition:.18s; }
+
+.del-btn {
+  background:none; border:none; cursor:pointer;
+  color: var(--gray-300); padding:2px; border-radius:6px;
+  display:flex; align-items:center; transition:.15s;
+}
+.del-btn:hover { color:#ef4444; background:#fee2e2; }
+
+.empty-hint {
+  text-align:center; padding:24px 0;
+  color: var(--gray-400); font-size:.85rem; font-style:italic;
+}
+
+/* ════════════════════════════════════════════════════════
+   AGENDA
+════════════════════════════════════════════════════════ */
+.ag-form { display:grid; grid-template-columns:1fr 1fr; gap:7px; margin-bottom:14px; }
+.ag-form .span2 { grid-column:span 2; }
+@media(max-width:500px){ .ag-form { grid-template-columns:1fr; } .ag-form .span2{grid-column:span 1} }
+
+.ag-list { display:flex; flex-direction:column; gap:7px; max-height:260px; overflow-y:auto; padding-right:2px; }
+
+.ag-item {
+  display:flex; align-items:flex-start; gap:10px;
+  padding: 10px 12px;
+  background: var(--gray-50); border:1px solid var(--gray-100);
+  border-left: 3px solid var(--gold);
+  border-radius: var(--radius-sm);
+  animation: slideIn .22s var(--ease) both;
+}
+.ag-badge {
+  background: var(--gold-light); color: var(--gold);
+  font-size:.7rem; font-weight:700;
+  padding:3px 8px; border-radius:6px; white-space:nowrap; flex-shrink:0;
+}
+.ag-info { flex:1; }
+.ag-ttl { font-size:.88rem; font-weight:700; color: var(--gray-800); }
+.ag-time { font-size:.75rem; color: var(--gray-400); margin-top:1px; }
+
+/* ════════════════════════════════════════════════════════
+   PLANNER DE COMIDAS
+════════════════════════════════════════════════════════ */
+.meals-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+@media(max-width:600px){ .meals-grid { grid-template-columns:1fr; } }
+
+.meal-block { }
+.meal-lbl {
+  font-size:.72rem; font-weight:700; letter-spacing:.7px;
+  text-transform:uppercase; color: var(--gray-400);
+  margin-bottom:6px; display:flex; align-items:center; gap:5px;
+}
+.meal-row { display:flex; gap:6px; }
+.meal-row .inp { flex:1; font-size:.84rem; }
+.meal-plus {
+  width:33px; height:33px; flex-shrink:0;
+  background: var(--rose-light); color: var(--rose);
+  border:none; border-radius:10px;
+  cursor:pointer; font-size:1.1rem; font-weight:700;
+  transition:.15s; display:flex; align-items:center; justify-content:center;
+}
+.meal-plus:hover { background: var(--rose); color:#fff; }
+.meal-tags { display:flex; flex-wrap:wrap; gap:5px; margin-top:6px; }
+.meal-tag {
+  display:flex; align-items:center; gap:4px;
+  background: var(--rose-light); color: var(--rose);
+  border-radius:20px; padding:2px 10px 2px 9px;
+  font-size:.77rem; font-weight:700;
+  animation: pop .2s var(--spring) both;
+}
+@keyframes pop { from{opacity:0;transform:scale(.6)} to{opacity:1;transform:scale(1)} }
+.meal-tag button { background:none; border:none; cursor:pointer; color: var(--rose); opacity:.65; font-size:.85rem; padding:0; }
+.meal-tag button:hover { opacity:1; }
+
+/* ════════════════════════════════════════════════════════
+   CONSEJO DEL DÍA
+════════════════════════════════════════════════════════ */
+.tip-card {
+  background: linear-gradient(135deg, var(--lav-light) 0%, var(--sky-light) 100%);
+  border: 1px solid #e0d9ff;
+}
+.tip-category {
+  display:inline-flex; align-items:center; gap:5px;
+  background: var(--lavender); color:#4c1d95;
+  font-size:.7rem; font-weight:700; letter-spacing:.5px; text-transform:uppercase;
+  padding:3px 10px; border-radius:20px; margin-bottom:12px;
+}
+.tip-text {
+  font-family: var(--font-serif);
+  font-size: 1.05rem; font-style:italic;
+  color: var(--gray-700);
+  line-height: 1.65;
+  margin-bottom: 14px;
+}
+.tip-action {
+  font-size:.82rem; font-weight:700; color: var(--gray-500);
+  padding: 10px 14px;
+  background: rgba(255,255,255,.7);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--lavender);
+}
+.tip-action strong { color: #5b21b6; }
+
+/* ════════════════════════════════════════════════════════
+   GALERÍA DE FOTOS
+════════════════════════════════════════════════════════ */
+.photo-upload-area {
+  border: 2px dashed var(--rose-mid);
+  border-radius: var(--radius-md);
+  padding: 28px 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: .2s var(--ease);
+  background: var(--rose-light);
+  margin-bottom: 16px;
+  position: relative;
+}
+.photo-upload-area:hover { border-color: var(--rose); background: #ffe4ea; }
+.photo-upload-area input[type=file] {
+  position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%;
+}
+.upload-icon { font-size:2rem; margin-bottom:6px; }
+.upload-hint { font-size:.82rem; color: var(--gray-400); font-weight:600; }
+.upload-hint strong { color: var(--rose); }
+
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 10px;
+}
+.photo-item {
+  position: relative;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  aspect-ratio: 1;
+  box-shadow: var(--shadow-sm);
+  animation: pop .3s var(--spring) both;
+  cursor: pointer;
+}
+.photo-item img {
+  width:100%; height:100%; object-fit:cover;
+  transition: transform .3s var(--ease);
+  display: block;
+}
+.photo-item:hover img { transform: scale(1.07); }
+.photo-del {
+  position:absolute; top:5px; right:5px;
+  background: rgba(0,0,0,.55); color:#fff;
+  border:none; border-radius:50%;
+  width:22px; height:22px; cursor:pointer;
+  font-size:.7rem; display:flex; align-items:center; justify-content:center;
+  opacity:0; transition:.15s;
+}
+.photo-item:hover .photo-del { opacity:1; }
+.photo-date {
+  position:absolute; bottom:0; left:0; right:0;
+  background: linear-gradient(to top, rgba(0,0,0,.5), transparent);
+  color:#fff; font-size:.6rem; padding:6px 5px 4px;
+  font-weight:700;
+}
+
+/* Lightbox */
+.lightbox {
+  position:fixed; inset:0;
+  background:rgba(0,0,0,.88);
+  z-index:10000;
+  display:flex; align-items:center; justify-content:center;
+  padding:20px;
+  opacity:0; pointer-events:none;
+  transition:.25s var(--ease);
+}
+.lightbox.open { opacity:1; pointer-events:all; }
+.lightbox img {
+  max-width:92vw; max-height:88vh;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 20px 60px rgba(0,0,0,.5);
+  transform: scale(.9);
+  transition: transform .3s var(--spring);
+}
+.lightbox.open img { transform: scale(1); }
+.lb-close {
+  position:fixed; top:18px; right:20px;
+  background:rgba(255,255,255,.15); border:none; color:#fff;
+  font-size:1.1rem; width:36px; height:36px; border-radius:50%;
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+  transition:.15s;
+}
+.lb-close:hover { background:rgba(255,255,255,.3); }
+
+/* ════════════════════════════════════════════════════════
+   DIARIO
+════════════════════════════════════════════════════════ */
+.diary-mood-row {
+  display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap;
+}
+.mood-btn {
+  background: var(--gray-100); border: 2px solid transparent;
+  border-radius:50px; padding:6px 14px;
+  font-size:.9rem; cursor:pointer;
+  transition:.15s var(--ease);
+}
+.mood-btn:hover { background: var(--rose-light); border-color: var(--rose-mid); }
+.mood-btn.active { background: var(--rose-light); border-color: var(--rose); }
+
+.diary-textarea {
+  width:100%; min-height:110px; resize:vertical;
+  padding: 12px 14px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body); font-size:.88rem; line-height:1.6;
+  color: var(--gray-800); background: var(--gray-50);
+  outline:none; transition: border-color .2s;
+  margin-bottom: 12px;
+}
+.diary-textarea::placeholder { color: var(--gray-400); }
+.diary-textarea:focus { border-color: var(--rose); background:#fff; }
+
+.diary-actions { display:flex; gap:8px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
+.diary-char { font-size:.75rem; color: var(--gray-400); }
+
+.diary-history { margin-top: 20px; }
+.diary-history-title {
+  font-family: var(--font-serif);
+  font-size:.95rem; font-weight:700;
+  color: var(--gray-600);
+  margin-bottom:10px;
+  display:flex; align-items:center; gap:7px;
+}
+.diary-entries { display:flex; flex-direction:column; gap:10px; max-height:320px; overflow-y:auto; padding-right:3px; }
+
+.diary-entry {
+  padding:14px 16px;
+  background: var(--gray-50); border: 1px solid var(--gray-100);
+  border-radius: var(--radius-sm);
+  animation: slideIn .22s var(--ease) both;
+}
+.diary-entry-header {
+  display:flex; align-items:center; gap:8px;
+  margin-bottom:6px;
+}
+.diary-entry-mood { font-size:1.1rem; }
+.diary-entry-date { font-size:.75rem; color: var(--gray-400); font-weight:700; flex:1; }
+.diary-entry-del {
+  background:none; border:none; cursor:pointer;
+  color: var(--gray-300); display:flex; align-items:center; padding:2px;
+  border-radius:5px; transition:.15s;
+}
+.diary-entry-del:hover { color:#ef4444; background:#fee2e2; }
+.diary-entry-text { font-size:.86rem; color: var(--gray-700); line-height:1.6; white-space:pre-wrap; }
+
+/* ════════════════════════════════════════════════════════
+   MEDIDOR DE AMOR
+════════════════════════════════════════════════════════ */
+.love-wrap { display:flex; flex-direction:column; align-items:center; gap:20px; }
+.heart-stage { position:relative; display:flex; align-items:center; justify-content:center; }
+#love-heart-svg { transition: transform .4s var(--spring); filter: drop-shadow(0 0 12px rgba(255,143,163,.5)); }
+.heart-ring {
+  position:absolute; border-radius:50%;
+  animation: ring 2s ease-out infinite;
+}
+@keyframes ring {
+  0%  { transform:scale(.8); opacity:.5; }
+  70% { transform:scale(1.7); opacity:0; }
+  100%{ transform:scale(.8); opacity:0; }
+}
+#love-label {
+  font-family: var(--font-serif);
+  font-size:1.1rem; font-weight:700; color: var(--rose);
+  text-align:center; min-height:30px; transition:opacity .2s;
+}
+.slider-wrap { width:100%; }
+.slider-ends { display:flex; justify-content:space-between; margin-bottom:5px; }
+.slider-ends span { font-size:.73rem; color: var(--gray-400); font-weight:700; }
+
+input[type=range].love-slider {
+  -webkit-appearance:none; appearance:none;
+  width:100%; height:6px; border-radius:50px;
+  background: linear-gradient(to right, var(--rose-mid), var(--rose));
+  outline:none; cursor:pointer;
+}
+input[type=range].love-slider::-webkit-slider-thumb {
+  -webkit-appearance:none;
+  width:22px; height:22px; border-radius:50%;
+  background: var(--white); border:3px solid var(--rose);
+  box-shadow:0 2px 8px rgba(255,143,163,.4); cursor:pointer; transition: transform .15s;
+}
+input[type=range].love-slider::-webkit-slider-thumb:active { transform:scale(1.25); }
+
+.secret-btn {
+  width:100%; padding:14px 20px;
+  background: linear-gradient(135deg, var(--rose) 0%, #ff5c7a 100%);
+  color:#fff; border:none; border-radius: var(--radius-sm);
+  font-family: var(--font-serif);
+  font-size:1rem; font-style:italic; font-weight:500;
+  cursor:pointer;
+  box-shadow:0 4px 20px rgba(255,143,163,.45);
+  transition:.2s var(--ease);
+  position:relative; overflow:hidden;
+}
+.secret-btn::after {
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,.18),transparent);
+}
+.secret-btn:hover { transform:translateY(-2px); box-shadow:0 8px 28px rgba(255,143,163,.55); }
+.secret-btn:active { transform:scale(.98); }
+
+/* ════════════════════════════════════════════════════════
+   CONTADOR
+════════════════════════════════════════════════════════ */
+.counter-card {
+  background: linear-gradient(135deg, var(--rose-light) 0%, var(--gold-light) 100%);
+  border: 1px solid var(--rose-mid);
+}
+.counter-blocks { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-bottom:16px; }
+.cb {
+  display:flex; flex-direction:column; align-items:center;
+  background: var(--white); border-radius: var(--radius-sm);
+  padding:12px 14px; min-width:64px;
+  box-shadow: var(--shadow-sm);
+  border:1px solid rgba(255,143,163,.15);
+}
+.cb-num {
+  font-family: var(--font-serif); font-size:1.9rem; font-weight:700;
+  color: var(--rose); line-height:1; font-variant-numeric:tabular-nums;
+}
+.cb-lbl { font-size:.65rem; font-weight:700; letter-spacing:.7px; text-transform:uppercase; color: var(--gray-400); margin-top:3px; }
+.counter-msg { text-align:center; font-family: var(--font-serif); font-style:italic; color: var(--gray-600); font-size:.92rem; line-height:1.5; }
+
+/* ════════════════════════════════════════════════════════
+   MODAL
+════════════════════════════════════════════════════════ */
+.overlay {
+  position:fixed; inset:0;
+  background:rgba(0,0,0,.35); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+  display:flex; align-items:center; justify-content:center;
+  z-index:9999; padding:20px;
+  opacity:0; pointer-events:none; transition:opacity .3s;
+}
+.overlay.open { opacity:1; pointer-events:all; }
+.modal {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding:44px 38px 36px;
+  max-width:440px; width:100%;
+  text-align:center;
+  box-shadow: var(--shadow-lg);
+  position:relative;
+  transform:scale(.88) translateY(20px);
+  transition:transform .35s var(--spring);
+}
+.overlay.open .modal { transform:scale(1) translateY(0); }
+.modal-x {
+  position:absolute; top:14px; right:14px;
+  background: var(--gray-100); border:none;
+  width:30px; height:30px; border-radius:8px;
+  cursor:pointer; font-size:.85rem; color: var(--gray-400);
+  display:flex; align-items:center; justify-content:center;
+  transition:.15s;
+}
+.modal-x:hover { background: var(--gray-200); color: var(--gray-600); }
+.modal-emoji { font-size:2.8rem; margin-bottom:12px; display:block; }
+.modal-title { font-family: var(--font-serif); font-size:1.55rem; font-weight:700; color: var(--rose); margin-bottom:12px; }
+.modal-body  { font-family: var(--font-serif); font-style:italic; font-size:1rem; color: var(--gray-600); line-height:1.65; margin-bottom:26px; }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ══════════════════════════════
+       HEADER
+  ══════════════════════════════ -->
+  <header class="header">
+    <div class="header-top">
+      <div>
+        <p class="header-date" id="hdr-date"></p>
+        <h1 class="header-greeting" id="hdr-greeting">Cargando...</h1>
+      </div>
+      <div class="weather-pill" id="weather-pill">
+        <span id="wp-icon">🌤️</span>
+        <span id="wp-text">Cargando...</span>
+      </div>
+    </div>
+    <div class="quote-bar">
+      <span style="font-size:1.5rem;flex-shrink:0">🌸</span>
+      <p id="hdr-quote"></p>
+    </div>
+  </header>
+
+  <!-- ══════════════════════════════
+       GRID
+  ══════════════════════════════ -->
+  <div class="grid">
+
+    <!-- ── divider ── -->
+    <div class="divider"><span>Tu espacio personal</span></div>
+
+    <!-- ── TO-DO (c7) ── -->
+    <div class="card c7">
+      <div class="card-title">
+        <div class="iw iw-rose"><i data-lucide="check-circle-2" style="width:15px;height:15px"></i></div>
+        Mis Pendientes
+      </div>
+      <div class="todo-row">
+        <input class="inp" id="todo-inp" placeholder="Nueva tarea..." maxlength="80"
+               onkeydown="if(event.key==='Enter') addTodo()" />
+        <button class="btn btn-rose" onclick="addTodo()">
+          <i data-lucide="plus" style="width:14px;height:14px"></i> Agregar
+        </button>
+      </div>
+      <div class="todo-scroll" id="todo-list">
+        <div class="empty-hint" id="todo-empty">✨ ¡Agrega tu primera tarea, pulgosa!</div>
+      </div>
+    </div>
+
+    <!-- ── AGENDA (c5) ── -->
+    <div class="card c5">
+      <div class="card-title">
+        <div class="iw iw-gold"><i data-lucide="calendar-heart" style="width:15px;height:15px"></i></div>
+        Agenda & Recordatorios
+      </div>
+      <div class="ag-form">
+        <input class="inp span2" id="ag-ttl" placeholder="Evento o recordatorio..." maxlength="60" />
+        <input class="inp" type="date" id="ag-date" />
+        <input class="inp" type="time" id="ag-time" />
+        <button class="btn btn-gold span2" onclick="addEvent()" style="width:100%">
+          <i data-lucide="plus" style="width:14px;height:14px"></i> Guardar evento
+        </button>
+      </div>
+      <div class="ag-list" id="ag-list">
+        <div class="empty-hint" id="ag-empty">📅 No hay eventos aún.</div>
+      </div>
+    </div>
+
+    <!-- ── divider ── -->
+    <div class="divider"><span>Nutrición & Bienestar</span></div>
+
+    <!-- ── PLANNER COMIDAS (c12) ── -->
+    <div class="card c12">
+      <div class="card-title">
+        <div class="iw iw-gold"><i data-lucide="utensils" style="width:15px;height:15px"></i></div>
+        Planner de Comidas del Día
+      </div>
+      <div class="meals-grid" id="meals-grid"></div>
+    </div>
+
+    <!-- ── divider ── -->
+    <div class="divider"><span>Inspiración & Crecimiento</span></div>
+
+    <!-- ── CONSEJO DEL DÍA (c5) ── -->
+    <div class="card c5 tip-card">
+      <div class="card-title">
+        <div class="iw iw-lav"><i data-lucide="sparkles" style="width:15px;height:15px"></i></div>
+        Consejo del Día
+      </div>
+      <div id="tip-category" class="tip-category"></div>
+      <p id="tip-text" class="tip-text"></p>
+      <div id="tip-action" class="tip-action"></div>
+    </div>
+
+    <!-- ── DIARIO (c7) ── -->
+    <div class="card c7">
+      <div class="card-title">
+        <div class="iw iw-mint"><i data-lucide="book-heart" style="width:15px;height:15px"></i></div>
+        Mi Diario — ¿Cómo me sentí hoy?
+      </div>
+
+      <!-- Moods -->
+      <div class="diary-mood-row" id="mood-row">
+        <button class="mood-btn" data-mood="😊" onclick="selectMood(this)">😊 Feliz</button>
+        <button class="mood-btn" data-mood="😌" onclick="selectMood(this)">😌 En paz</button>
+        <button class="mood-btn" data-mood="😴" onclick="selectMood(this)">😴 Cansada</button>
+        <button class="mood-btn" data-mood="🥺" onclick="selectMood(this)">🥺 Sensible</button>
+        <button class="mood-btn" data-mood="😤" onclick="selectMood(this)">😤 Frustrada</button>
+        <button class="mood-btn" data-mood="🤩" onclick="selectMood(this)">🤩 Emocionada</button>
+      </div>
+
+      <textarea class="diary-textarea" id="diary-txt"
+        placeholder="Cuéntame... ¿qué hiciste hoy? ¿cómo te sentiste? ¿algo especial que pasó? Este es tu espacio 💕"
+        oninput="updateCharCount()" maxlength="1000"></textarea>
+
+      <div class="diary-actions">
+        <span class="diary-char" id="diary-char">0 / 1000</span>
+        <button class="btn btn-mint" onclick="saveDiary()">
+          <i data-lucide="save" style="width:14px;height:14px"></i> Guardar entrada
+        </button>
+      </div>
+
+      <!-- Historial -->
+      <div class="diary-history">
+        <div class="diary-history-title">
+          <i data-lucide="history" style="width:15px;height:15px;color:var(--gray-400)"></i>
+          Entradas anteriores
+        </div>
+        <div class="diary-entries" id="diary-list">
+          <div class="empty-hint" id="diary-empty">📖 Tu diario está vacío. ¡Escribe tu primera entrada!</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── divider ── -->
+    <div class="divider"><span>Mis momentos lindos</span></div>
+
+    <!-- ── GALERÍA (c12) ── -->
+    <div class="card c12">
+      <div class="card-title">
+        <div class="iw iw-sky"><i data-lucide="image" style="width:15px;height:15px"></i></div>
+        Mi Galería de Fotos Lindas 📸
+      </div>
+
+      <div class="photo-upload-area" id="upload-area">
+        <input type="file" accept="image/*" multiple id="photo-input" onchange="handlePhotos(event)" />
+        <div class="upload-icon">📷</div>
+        <p class="upload-hint">
+          <strong>Toca aquí</strong> para subir fotos desde tu teléfono o computador<br>
+          <span style="font-size:.75rem;color:var(--gray-400);margin-top:3px;display:block">Las fotos se guardan localmente en tu navegador</span>
+        </p>
+      </div>
+
+      <div class="photo-grid" id="photo-grid"></div>
+    </div>
+
+    <!-- ── divider ── -->
+    <div class="divider"><span>Nuestro mundo</span></div>
+
+    <!-- ── MEDIDOR AMOR (c5) ── -->
+    <div class="card c5">
+      <div class="card-title">
+        <div class="iw iw-rose"><i data-lucide="heart" style="width:15px;height:15px"></i></div>
+        Medidor de Amor
+      </div>
+      <div class="love-wrap">
+        <div class="heart-stage">
+          <div class="heart-ring" id="heart-ring"
+               style="width:80px;height:80px;background:rgba(255,143,163,.18)"></div>
+          <svg id="love-heart-svg" width="88" height="80" viewBox="0 0 100 90" xmlns="http://www.w3.org/2000/svg">
+            <path id="heart-path"
+              d="M50 85 C50 85 5 55 5 28 C5 14 16 5 28 5 C36 5 44 9 50 16 C56 9 64 5 72 5 C84 5 95 14 95 28 C95 55 50 85 50 85 Z"
+              fill="#ff8fa3"/>
+            <ellipse cx="35" cy="25" rx="10" ry="6" fill="rgba(255,255,255,.28)" transform="rotate(-30 35 25)"/>
+          </svg>
+        </div>
+        <p id="love-label">Desliza!! 💕</p>
+        <div class="slider-wrap">
+          <div class="slider-ends"><span>💛</span><span>❤️‍🔥</span></div>
+          <input type="range" class="love-slider" id="love-slider" min="0" max="100" value="50"
+                 oninput="updateLoveMeter(this.value)" />
+        </div>
+        <button class="secret-btn" onclick="openLoveModal()">
+          Si oprimes acá recibes un mensaje ✨
+        </button>
+      </div>
+    </div>
+
+    <!-- ── CONTADOR (c7) ── -->
+    <div class="card c7 counter-card">
+      <div class="card-title">
+        <div class="iw iw-rose"><i data-lucide="timer" style="width:15px;height:15px"></i></div>
+        Tiempo Juntos
+      </div>
+      <div class="counter-blocks">
+        <div class="cb"><span class="cb-num" id="cnt-y">0</span><span class="cb-lbl">Años</span></div>
+        <div class="cb"><span class="cb-num" id="cnt-mo">0</span><span class="cb-lbl">Meses</span></div>
+        <div class="cb"><span class="cb-num" id="cnt-d">0</span><span class="cb-lbl">Días</span></div>
+        <div class="cb"><span class="cb-num" id="cnt-h">0</span><span class="cb-lbl">Horas</span></div>
+        <div class="cb"><span class="cb-num" id="cnt-m">0</span><span class="cb-lbl">Min</span></div>
+        <div class="cb"><span class="cb-num" id="cnt-s">0</span><span class="cb-lbl">Seg</span></div>
+      </div>
+      <p class="counter-msg" id="cnt-msg"></p>
+    </div>
+
+  </div><!-- /grid -->
+</div><!-- /app -->
+
+<!-- MODAL AMOR -->
+<div class="overlay" id="love-modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <button class="modal-x" onclick="closeModal()">✕</button>
+    <span class="modal-emoji" id="modal-emoji">💖</span>
+    <h2 class="modal-title">Un mensaje para ti</h2>
+    <p class="modal-body" id="modal-body"></p>
+    <button class="btn btn-rose" style="min-width:140px" onclick="closeModal()">Con todo mi amor 🌸</button>
+  </div>
+</div>
+
+<!-- LIGHTBOX FOTO -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lb-close" onclick="closeLightbox()">✕</button>
+  <img id="lb-img" src="" alt="Foto" />
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════════════════
+   ✏️  CONFIGURACIÓN — edita estos valores
+══════════════════════════════════════════════════════════════ */
+
+// ✏️ Tu nombre
+const TU_NOMBRE = "Pablo";
+
+// ✏️ Cómo la llamas (aparece en el saludo)
+const NOMBRE_ELLA = "mi pulga";
+
+// ✏️ Fecha de aniversario — formato: "YYYY-MM-DDTHH:MM:SS"
+const FECHA_ANIVERSARIO = new Date("2025-10-05T00:00:00");
+
+// ✏️ Frases del header para "pulgosa" — se rotan por día
+const FRASES_PULGOSA = [
+  "Todo organizado y lindo,como se lo merece, pulgosa 🌸",
+  "Este es tu espacio, pulga. Hecho con todo el amor 💕",
+  "Cada día contigo es el mejor día, pulgosa ✨",
+  "Aquí te puedes organizar y recordarme como estas 🌹",
+  "Tu felicidad es lo más importante para mí 💖",
+  "Pulgosa, eres increíble y este día es tuyo 🌺",
+  "Para mi pulgosa favorita  🦋",
+];
+
+// ✏️ Mensajes del modal romántico
+const MENSAJES_MODAL = [
+  { emoji:"🌹", msg:"Eres la persona más hermosa que he conocido, por dentro y por fuera. Cada día contigo es un regalo que no merezco pero que agradezco con todo mi corazón." },
+  { emoji:"💫", msg:"Si pudiera elegir a alguien para compartir cada momento de mi vida, te elegiría a ti, una y otra vez, sin dudarlo ni un segundo." },
+  { emoji:"🌙", msg:"Pienso en ti cuando se pone el sol, cuando amanece, y en todos los minutos en medio. Eres mi pensamiento favorito, mi pulga." },
+  { emoji:"✨", msg:"No sé qué hice para merecer a alguien como tú, pero prometo pasar el resto de mi vida siendo digno de tu amor." },
+  { emoji:"🌸", msg:"Tu sonrisa es mi lugar favorito en el mundo. Podría quedarme mirándola para siempre y nunca cansarme." },
+  { emoji:"💌", msg:"Gracias por cada abrazo, por cada momento de calma, por cada risa compartida. Eres mi persona favorita en el universo, pulgosa." },
+  { emoji:"🔮", msg:"El futuro se ve más brillante cuando imagino que estás en él. Quiero construir algo hermoso contigo." },
+  { emoji:"🍀", msg:"Me siento el ser humano más afortunado del mundo simplemente por tenerte. Te amo hoy y siempre, mi pulga." },
+];
+
+/* ══════════════════════════════════════════════════════════════
+   CONSEJOS DEL DÍA — todos los tipos mezclados
+══════════════════════════════════════════════════════════════ */
+const TIPS = [
+  // Autocuidado 🌿
+  { cat:"🌿 Autocuidado", text:"Tómate 10 minutos solo para respirar hoy. Sin teléfono, sin ruido. Solo tú y tu respiración.", action:"💡 Prueba: 4 seg inhala, 4 seg sostén, 6 seg exhala. Repite 5 veces." },
+  { cat:"🌿 Autocuidado", text:"Tu piel y tu cuerpo merecen atención hoy. Hidrátate bien, aplica tu crema favorita y date ese momento de cuidado.", action:"💡 Bebe al menos 8 vasos de agua hoy. Tu cuerpo te lo agradecerá." },
+  { cat:"🌿 Autocuidado", text:"El descanso no es pereza, es necesidad. Si te sientes cansada, escucha a tu cuerpo y date el permiso de descansar.", action:"💡 Esta noche: teléfono en silencio 30 min antes de dormir." },
+  { cat:"🌿 Autocuidado", text:"Mueve tu cuerpo hoy, aunque sea un poco. Un paseo de 15 minutos puede cambiar completamente tu estado de ánimo.", action:"💡 Sal a caminar o baila sola en tu cuarto. No juzgues, solo disfruta." },
+  // Amor propio 💪
+  { cat:"💪 Amor propio", text:"Eres suficiente exactamente como eres hoy. No necesitas ser una versión mejorada para merecer amor y respeto.", action:"💡 Frente al espejo, dite 3 cosas que amas de ti misma hoy." },
+  { cat:"💪 Amor propio", text:"Compararte con otros roba tu alegría. Tu camino es único y hermoso. Celebra tu propio ritmo.", action:"💡 Escribe en tu diario algo en lo que hayas mejorado este año." },
+  { cat:"💪 Amor propio", text:"Está bien decir que no. Tus límites son sagrados y respetarlos es un acto de amor propio poderoso.", action:"💡 Identifica algo esta semana a lo que quieras decir 'no' sin culpa." },
+  { cat:"💪 Amor propio", text:"Tus sentimientos son válidos, todos ellos. No tienes que minimizar lo que sientes para hacer cómodos a los demás.", action:"💡 Dale nombre a cómo te sientes ahora mismo. Solo reconócelo." },
+  // Pareja 💑
+  { cat:"💑 Pareja", text:"Las pequeñas demostraciones de amor diarias construyen una relación más fuerte que los grandes gestos ocasionales.", action:"💡 Envía un mensaje hoy que diga exactamente lo que aprecias de él." },
+  { cat:"💑 Pareja", text:"Comunicar lo que necesitas no es debilidad, es la base de una relación sana y profunda.", action:"💡 ¿Hay algo que quieras expresarle? Este es el momento." },
+  { cat:"💑 Pareja", text:"Reírse juntos es uno de los lazos más poderosos en una relación. No olviden ser los mejores amigos también.", action:"💡 Planeen algo divertido juntos esta semana, aunque sea pequeño." },
+  { cat:"💑 Pareja", text:"En el amor sano, ambas personas crecen. Apóyense en sus sueños individuales tanto como en los compartidos.", action:"💡 Cuéntale hoy una meta personal tuya que quieras alcanzar." },
+  // Productividad 📋
+  { cat:"📋 Organización", text:"Empieza el día identificando solo 3 cosas importantes que quieres lograr. La claridad reduce la ansiedad.", action:"💡 Usa tu lista de pendientes y marca las 3 más importantes con ⭐." },
+  { cat:"📋 Organización", text:"El orden en tu espacio crea orden en tu mente. Dedica 10 minutos a organizar un área de tu cuarto hoy.", action:"💡 Regla: si algo tarda menos de 2 minutos en hacerse, hazlo ya." },
+  { cat:"📋 Organización", text:"Las pausas no interrumpen la productividad, la potencian. Trabaja en bloques de 25 min con descansos de 5.", action:"💡 Esto se llama técnica Pomodoro. Pruébala con tu próxima tarea." },
+  { cat:"📋 Organización", text:"Planear tus comidas con anticipación te ahorra tiempo, dinero y malas decisiones cuando tienes hambre.", action:"💡 Revisa tu planner de comidas y deja listo el menú de mañana." },
+];
+
+/* ══════════════════════════════════════════════════════════════
+   HEADER
+══════════════════════════════════════════════════════════════ */
+function initHeader() {
+  const now  = new Date();
+  const h    = now.getHours();
+  let greet, wp;
+
+  if      (h >= 5  && h < 12) { greet = `Buenos días,`;   wp = {icon:"☀️", txt:"Buen día para ser feliz"}; }
+  else if (h >= 12 && h < 19) { greet = `Buenas tardes,`; wp = {icon:"🌤️", txt:"Tarde hermosa para ti"}; }
+  else                         { greet = `Buenas noches,`; wp = {icon:"🌙", txt:"Noche tranquila"}; }
+
+  document.getElementById("hdr-greeting").innerHTML =
+    `${greet} <span class="accent">${NOMBRE_ELLA}</span> 💖`;
+
+  document.getElementById("hdr-date").textContent =
+    now.toLocaleDateString("es-CO",{weekday:"long",year:"numeric",month:"long",day:"numeric"})
+       .replace(/^\w/,c=>c.toUpperCase());
+
+  document.getElementById("wp-icon").textContent = wp.icon;
+  document.getElementById("wp-text").textContent = wp.txt;
+
+  // Frase del día para pulgosa — rota por día del año
+  const doy = Math.floor((now - new Date(now.getFullYear(),0,0)) / 86400000);
+  document.getElementById("hdr-quote").textContent = FRASES_PULGOSA[doy % FRASES_PULGOSA.length];
+}
+
+/* ══════════════════════════════════════════════════════════════
+   TO-DO
+══════════════════════════════════════════════════════════════ */
+let todos = JSON.parse(localStorage.getItem("ld_todos") || "[]");
+const saveTodos = () => localStorage.setItem("ld_todos", JSON.stringify(todos));
+
+function renderTodos() {
+  const list = document.getElementById("todo-list");
+  const empty= document.getElementById("todo-empty");
+  Array.from(list.querySelectorAll(".todo-item")).forEach(e=>e.remove());
+  if (!todos.length) { empty.style.display="block"; return; }
+  empty.style.display="none";
+  todos.forEach((t,i)=>{
+    const el = document.createElement("div");
+    el.className = "todo-item" + (t.done?" done":"");
+    el.innerHTML = `
+      <div class="chk" onclick="toggleTodo(${i})">
+        ${t.done?'<i data-lucide="check" style="width:11px;height:11px"></i>':""}
+      </div>
+      <span class="todo-txt">${esc(t.text)}</span>
+      <button class="del-btn" onclick="delTodo(${i})">
+        <i data-lucide="x" style="width:13px;height:13px"></i>
+      </button>`;
+    list.appendChild(el);
+  });
+  lucide.createIcons();
+}
+
+function addTodo(){
+  const inp=document.getElementById("todo-inp");
+  const v=inp.value.trim(); if(!v)return;
+  todos.unshift({text:v,done:false});
+  saveTodos();renderTodos();inp.value="";inp.focus();
+}
+function toggleTodo(i){ todos[i].done=!todos[i].done; saveTodos();renderTodos(); }
+function delTodo(i){ todos.splice(i,1); saveTodos();renderTodos(); }
+
+/* ══════════════════════════════════════════════════════════════
+   AGENDA
+══════════════════════════════════════════════════════════════ */
+let evts = JSON.parse(localStorage.getItem("ld_events") || "[]");
+const saveEvts = () => localStorage.setItem("ld_events", JSON.stringify(evts));
+
+function renderAgenda(){
+  const list=document.getElementById("ag-list");
+  const empty=document.getElementById("ag-empty");
+  Array.from(list.querySelectorAll(".ag-item")).forEach(e=>e.remove());
+  const sorted=[...evts].sort((a,b)=>new Date(a.date||0)-new Date(b.date||0));
+  if(!sorted.length){empty.style.display="block";return;}
+  empty.style.display="none";
+  sorted.forEach(ev=>{
+    const i=evts.indexOf(ev);
+    const d=ev.date?new Date(ev.date+"T00:00:00"):null;
+    const ds=d?d.toLocaleDateString("es-CO",{day:"2-digit",month:"short"}).toUpperCase():"—";
+    const el=document.createElement("div");
+    el.className="ag-item";
+    el.innerHTML=`
+      <span class="ag-badge">${ds}</span>
+      <div class="ag-info">
+        <div class="ag-ttl">${esc(ev.title)}</div>
+        ${ev.time?`<div class="ag-time">⏰ ${ev.time}</div>`:""}
+      </div>
+      <button class="del-btn" onclick="delEvt(${i})">
+        <i data-lucide="x" style="width:13px;height:13px"></i>
+      </button>`;
+    list.appendChild(el);
+  });
+  lucide.createIcons();
+}
+
+function addEvent(){
+  const t=document.getElementById("ag-ttl").value.trim();
+  if(!t){document.getElementById("ag-ttl").focus();return;}
+  evts.push({title:t,date:document.getElementById("ag-date").value,time:document.getElementById("ag-time").value});
+  saveEvts();renderAgenda();
+  document.getElementById("ag-ttl").value="";
+}
+function delEvt(i){evts.splice(i,1);saveEvts();renderAgenda();}
+
+/* ══════════════════════════════════════════════════════════════
+   PLANNER DE COMIDAS
+══════════════════════════════════════════════════════════════ */
+const MEAL_TYPES=[
+  {key:"breakfast",lbl:"Desayuno",emoji:"☀️"},
+  {key:"lunch",    lbl:"Almuerzo",emoji:"🍽️"},
+  {key:"dinner",   lbl:"Cena",    emoji:"🌙"},
+  {key:"snacks",   lbl:"Snacks",  emoji:"🍎"},
+];
+let meals=JSON.parse(localStorage.getItem("ld_meals")||"{}");
+const saveMeals=()=>localStorage.setItem("ld_meals",JSON.stringify(meals));
+
+function renderMeals(){
+  const grid=document.getElementById("meals-grid");
+  grid.innerHTML="";
+  MEAL_TYPES.forEach(({key,lbl,emoji})=>{
+    if(!meals[key])meals[key]=[];
+    const b=document.createElement("div");
+    b.className="meal-block";
+    b.innerHTML=`
+      <div class="meal-lbl"><span>${emoji}</span>${lbl}</div>
+      <div class="meal-row">
+        <input class="inp" id="mi-${key}" placeholder="¿Qué ${key==="snacks"?"snack":"plato"}...?" maxlength="60"
+               onkeydown="if(event.key==='Enter')addMeal('${key}')" />
+        <button class="meal-plus" onclick="addMeal('${key}')">+</button>
+      </div>
+      <div class="meal-tags" id="mt-${key}"></div>`;
+    grid.appendChild(b);
+    const tags=b.querySelector(`#mt-${key}`);
+    meals[key].forEach((item,i)=>{
+      const tag=document.createElement("span");
+      tag.className="meal-tag";
+      tag.innerHTML=`${esc(item)}<button onclick="rmMeal('${key}',${i})">×</button>`;
+      tags.appendChild(tag);
+    });
+  });
+}
+
+function addMeal(k){
+  const inp=document.getElementById(`mi-${k}`);
+  const v=inp.value.trim();if(!v)return;
+  if(!meals[k])meals[k]=[];
+  meals[k].push(v);saveMeals();renderMeals();
+  setTimeout(()=>{const el=document.getElementById(`mi-${k}`);if(el)el.focus();},50);
+}
+function rmMeal(k,i){meals[k].splice(i,1);saveMeals();renderMeals();}
+
+/* ══════════════════════════════════════════════════════════════
+   CONSEJO DEL DÍA
+══════════════════════════════════════════════════════════════ */
+function renderTip(){
+  const now=new Date();
+  const doy=Math.floor((now-new Date(now.getFullYear(),0,0))/86400000);
+  const tip=TIPS[doy%TIPS.length];
+  document.getElementById("tip-category").textContent=tip.cat;
+  document.getElementById("tip-text").textContent=tip.text;
+  document.getElementById("tip-action").innerHTML=tip.action;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   GALERÍA DE FOTOS
+══════════════════════════════════════════════════════════════ */
+// Fotos guardadas como: [{data: base64, date: "...", id: number}]
+let photos=JSON.parse(localStorage.getItem("ld_photos")||"[]");
+const savePhotos=()=>{
+  try { localStorage.setItem("ld_photos",JSON.stringify(photos)); }
+  catch(e) { alert("⚠️ Espacio de almacenamiento lleno. Elimina algunas fotos para agregar más."); }
+};
+
+function renderPhotos(){
+  const grid=document.getElementById("photo-grid");
+  grid.innerHTML="";
+  if(!photos.length) return;
+  // Mostrar más recientes primero
+  [...photos].reverse().forEach((p,ri)=>{
+    const i=photos.length-1-ri;
+    const item=document.createElement("div");
+    item.className="photo-item";
+    item.innerHTML=`
+      <img src="${p.data}" alt="Foto" onclick="openLightbox('${p.data}')" loading="lazy"/>
+      <div class="photo-date">${p.date}</div>
+      <button class="photo-del" onclick="delPhoto(${i})" title="Eliminar">✕</button>`;
+    grid.appendChild(item);
+  });
+}
+
+function handlePhotos(e){
+  const files=Array.from(e.target.files);
+  if(!files.length)return;
+  let loaded=0;
+  files.forEach(file=>{
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      const d=new Date();
+      photos.push({
+        data:ev.target.result,
+        date:d.toLocaleDateString("es-CO",{day:"2-digit",month:"short",year:"numeric"}),
+        id:Date.now()+Math.random()
+      });
+      loaded++;
+      if(loaded===files.length){savePhotos();renderPhotos();}
+    };
+    reader.readAsDataURL(file);
+  });
+  e.target.value="";
+}
+
+function delPhoto(i){
+  if(!confirm("¿Eliminar esta foto?"))return;
+  photos.splice(i,1);savePhotos();renderPhotos();
+}
+
+function openLightbox(src){
+  document.getElementById("lb-img").src=src;
+  document.getElementById("lightbox").classList.add("open");
+  document.body.style.overflow="hidden";
+}
+function closeLightbox(){
+  document.getElementById("lightbox").classList.remove("open");
+  document.body.style.overflow="";
+}
+
+/* ══════════════════════════════════════════════════════════════
+   DIARIO
+══════════════════════════════════════════════════════════════ */
+let diary=JSON.parse(localStorage.getItem("ld_diary")||"[]");
+let selectedMood="";
+const saveDiary_=()=>localStorage.setItem("ld_diary",JSON.stringify(diary));
+
+function selectMood(btn){
+  document.querySelectorAll(".mood-btn").forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");
+  selectedMood=btn.dataset.mood;
+}
+
+function updateCharCount(){
+  const txt=document.getElementById("diary-txt").value;
+  document.getElementById("diary-char").textContent=`${txt.length} / 1000`;
+}
+
+function saveDiary(){
+  const txt=document.getElementById("diary-txt").value.trim();
+  if(!txt){document.getElementById("diary-txt").focus();return;}
+  const now=new Date();
+  diary.unshift({
+    mood:selectedMood||"📝",
+    text:txt,
+    date:now.toLocaleDateString("es-CO",{weekday:"long",day:"2-digit",month:"long",year:"numeric"}).replace(/^\w/,c=>c.toUpperCase()),
+    time:now.toLocaleTimeString("es-CO",{hour:"2-digit",minute:"2-digit"}),
+    id:Date.now()
+  });
+  saveDiary_();renderDiary();
+  document.getElementById("diary-txt").value="";
+  document.getElementById("diary-char").textContent="0 / 1000";
+  selectedMood="";
+  document.querySelectorAll(".mood-btn").forEach(b=>b.classList.remove("active"));
+  showToast("Entrada guardada en tu diario 📖");
+}
+
+function renderDiary(){
+  const list=document.getElementById("diary-list");
+  const empty=document.getElementById("diary-empty");
+  Array.from(list.querySelectorAll(".diary-entry")).forEach(e=>e.remove());
+  if(!diary.length){empty.style.display="block";return;}
+  empty.style.display="none";
+  diary.forEach((e,i)=>{
+    const el=document.createElement("div");
+    el.className="diary-entry";
+    el.innerHTML=`
+      <div class="diary-entry-header">
+        <span class="diary-entry-mood">${e.mood}</span>
+        <span class="diary-entry-date">${e.date} · ${e.time||""}</span>
+        <button class="diary-entry-del" onclick="delDiary(${i})">
+          <i data-lucide="x" style="width:12px;height:12px"></i>
+        </button>
+      </div>
+      <div class="diary-entry-text">${esc(e.text)}</div>`;
+    list.appendChild(el);
+  });
+  lucide.createIcons();
+}
+
+function delDiary(i){
+  if(!confirm("¿Eliminar esta entrada?"))return;
+  diary.splice(i,1);saveDiary_();renderDiary();
+}
+
+/* ══════════════════════════════════════════════════════════════
+   MEDIDOR DE AMOR
+══════════════════════════════════════════════════════════════ */
+const LOVE_STEPS=[
+  {val:0,  color:"#ffb3c6", lbl:"Desliza para sentir el amor 💕"},
+  {val:15, color:"#ff9ab4", lbl:"Siempre estás en mi mente 🌸"},
+  {val:30, color:"#ff8fa3", lbl:"Me encantas demasiado 🍓"},
+  {val:45, color:"#ff7590", lbl:"Te quiero con todo mi corazón 💗"},
+  {val:60, color:"#ff5c7a", lbl:"Eres mi persona favorita ❤️"},
+  {val:75, color:"#e8436a", lbl:"Eres el amor de mi vida 🌹"},
+  {val:90, color:"#c42b52", lbl:"¡Eres todo mi universo! ❤️‍🔥"},
+];
+
+function updateLoveMeter(v){
+  v=parseInt(v);
+  let step=LOVE_STEPS[0];
+  for(const s of LOVE_STEPS){if(v>=s.val)step=s;}
+  const svg=document.getElementById("love-heart-svg");
+  const path=document.getElementById("heart-path");
+  const ring=document.getElementById("heart-ring");
+  const lbl=document.getElementById("love-label");
+  svg.style.transform=`scale(${1+(v/100)*.7})`;
+  path.setAttribute("fill",step.color);
+  svg.style.filter=`drop-shadow(0 0 ${8+v*.14}px ${step.color}88)`;
+  const rs=80+v*.8; ring.style.width=rs+"px"; ring.style.height=rs+"px";
+  ring.style.background=`${step.color}22`;
+  lbl.style.opacity=0;
+  setTimeout(()=>{lbl.textContent=step.lbl;lbl.style.opacity=1;},100);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   MODAL AMOR + CONFETTI
+══════════════════════════════════════════════════════════════ */
+let lastMsg=-1;
+function openLoveModal(){
+  let idx; do{idx=Math.floor(Math.random()*MENSAJES_MODAL.length);}while(idx===lastMsg);
+  lastMsg=idx;
+  const {emoji,msg}=MENSAJES_MODAL[idx];
+  document.getElementById("modal-emoji").textContent=emoji;
+  document.getElementById("modal-body").textContent=msg;
+  document.getElementById("love-modal").classList.add("open");
+  document.body.style.overflow="hidden";
+  setTimeout(shootConfetti,280);
+}
+function closeModal(){
+  document.getElementById("love-modal").classList.remove("open");
+  document.body.style.overflow="";
+}
+
+function shootConfetti(){
+  const c=["#ff8fa3","#ffb3c6","#c9a96e","#ffd6de","#ff5c7a","#a8ddc9"];
+  [60,90,120].forEach((angle,i)=>setTimeout(()=>confetti({
+    particleCount:30,spread:65,origin:{y:.5},angle,scalar:1.1,
+    gravity:.85,colors:c,shapes:["circle"],ticks:220
+  }),i*130));
+  for(let i=0;i<10;i++){
+    const h=document.createElement("div");
+    h.textContent=["💖","💗","💓","💕","❤️","🌸"][Math.floor(Math.random()*6)];
+    Object.assign(h.style,{
+      position:"fixed",left:(30+Math.random()*40)+"vw",
+      top:(38+Math.random()*22)+"vh",fontSize:(1+Math.random()*1.2)+"rem",
+      pointerEvents:"none",zIndex:"99999",
+      animation:`floatUp ${1.2+Math.random()*.8}s ease-out forwards`,
+      animationDelay:(Math.random()*.4)+"s"
+    });
+    document.body.appendChild(h);
+    setTimeout(()=>h.remove(),2500);
+  }
+}
+
+const _fs=document.createElement("style");
+_fs.textContent=`@keyframes floatUp{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-180px) scale(.5) rotate(15deg)}}`;
+document.head.appendChild(_fs);
+
+/* ══════════════════════════════════════════════════════════════
+   CONTADOR
+══════════════════════════════════════════════════════════════ */
+const CNT_MSGS=[
+  `Cada segundo a tu lado es un tesoro, ${TU_NOMBRE} 💖`,
+  `Y siguen sumándose los momentos perfectos ✨`,
+  `El tiempo pasa, pero mi amor por ti solo crece 🌸`,
+  `Cada día, más seguro de que eres tú, ${TU_NOMBRE} 🌹`,
+];
+
+function updateCounter(){
+  const now=new Date(),diff=now-FECHA_ANIVERSARIO;
+  if(diff<0){document.getElementById("cnt-msg").textContent="¡Pronto empieza nuestra historia! 🌸";return;}
+  const ts=Math.floor(diff/1000),sec=ts%60,tm=Math.floor(ts/60),min=tm%60;
+  const th=Math.floor(tm/60),hr=th%24,td=Math.floor(th/24);
+  const sy=FECHA_ANIVERSARIO.getFullYear(),sm=FECHA_ANIVERSARIO.getMonth(),sd=FECHA_ANIVERSARIO.getDate();
+  const ny=now.getFullYear(),nm=now.getMonth(),nd=now.getDate();
+  let yy=ny-sy,mo=nm-sm;
+  if(mo<0||(mo===0&&nd<sd)){yy--;mo+=12;}
+  if(nd<sd)mo--;if(mo<0){yy--;mo+=12;}
+  const tmp=new Date(FECHA_ANIVERSARIO);tmp.setFullYear(tmp.getFullYear()+yy);tmp.setMonth(tmp.getMonth()+mo);
+  const dr=Math.floor((now-tmp)/86400000);
+  const p=n=>String(n).padStart(2,"0");
+  document.getElementById("cnt-y").textContent=p(yy);
+  document.getElementById("cnt-mo").textContent=p(mo);
+  document.getElementById("cnt-d").textContent=p(dr);
+  document.getElementById("cnt-h").textContent=p(hr);
+  document.getElementById("cnt-m").textContent=p(min);
+  document.getElementById("cnt-s").textContent=p(sec);
+  document.getElementById("cnt-msg").textContent=CNT_MSGS[Math.floor(td/30)%CNT_MSGS.length];
+}
+
+/* ══════════════════════════════════════════════════════════════
+   TOAST
+══════════════════════════════════════════════════════════════ */
+let _toastT;
+const _toast=Object.assign(document.createElement("div"),{id:"_toast"});
+Object.assign(_toast.style,{
+  position:"fixed",bottom:"24px",left:"50%",transform:"translateX(-50%) translateY(16px)",
+  background:"linear-gradient(135deg,#ff8fa3,#ff5c7a)",color:"#fff",
+  padding:"10px 24px",borderRadius:"50px",fontFamily:"var(--font-body)",
+  fontWeight:"700",fontSize:".85rem",boxShadow:"0 6px 20px rgba(255,100,130,.4)",
+  opacity:"0",transition:"opacity .3s,transform .3s",zIndex:"99998",
+  pointerEvents:"none",whiteSpace:"nowrap",maxWidth:"90vw",textAlign:"center"
+});
+document.body.appendChild(_toast);
+
+function showToast(msg){
+  _toast.textContent=msg;
+  _toast.style.opacity="1";_toast.style.transform="translateX(-50%) translateY(0)";
+  clearTimeout(_toastT);
+  _toastT=setTimeout(()=>{_toast.style.opacity="0";_toast.style.transform="translateX(-50%) translateY(16px)";},3200);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   UTIL
+══════════════════════════════════════════════════════════════ */
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+
+/* ══════════════════════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════════════════════ */
+document.addEventListener("DOMContentLoaded",()=>{
+  lucide.createIcons();
+  initHeader();
+  renderTodos();
+  renderAgenda();
+  renderMeals();
+  renderTip();
+  renderPhotos();
+  renderDiary();
+  updateLoveMeter(50);
+  updateCounter();
+  setInterval(updateCounter,1000);
+  // Pre-fill today in agenda
+  document.getElementById("ag-date").value=new Date().toISOString().split("T")[0];
+});
+</script>
+</body>
+</html>

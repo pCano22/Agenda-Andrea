@@ -13,13 +13,13 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// FUNCIÓN PARA GUARDAR (Ya la tenías)
-export async function guardarNota(tituloRecibido, contenidoRecibido) {
+// Función para GUARDAR
+export async function guardarNota(titulo, contenido) {
     try {
         await addDoc(collection(db, "Notas"), {
-            titulo: tituloRecibido,
-            contenido: contenidoRecibido,
-            fecha: new Date().getTime() // Usamos milisegundos para ordenar mejor
+            titulo: titulo,
+            contenido: contenido,
+            fecha: new Date().getTime() 
         });
         return true;
     } catch (error) {
@@ -28,18 +28,15 @@ export async function guardarNota(tituloRecibido, contenidoRecibido) {
     }
 }
 
-// NUEVA FUNCIÓN PARA LEER LAS NOTAS
+// Función para LEER (Esta es la que evita que se borren)
 export async function obtenerNotas() {
     try {
-        // Pedimos las notas ordenadas por fecha (la más reciente primero)
         const q = query(collection(db, "Notas"), orderBy("fecha", "desc"));
         const querySnapshot = await getDocs(q);
         const notas = [];
-        
         querySnapshot.forEach((doc) => {
             notas.push({ id: doc.id, ...doc.data() });
         });
-        
         return notas;
     } catch (error) {
         console.error("Error al obtener notas:", error);

@@ -1358,65 +1358,51 @@ document.addEventListener("DOMContentLoaded",()=>{
 <script type="module">
     import { guardarNota, obtenerNotas } from './conexion.js';
 
-    // Función para mostrar las notas en el historial
+    // Esta función dibuja las notas en el cuadrito de "Entradas anteriores"
     async function cargarHistorial() {
-        const contenedor = document.getElementById('diary-list');
-        const avisoVacio = document.getElementById('diary-empty');
-        
-        // 1. Traemos las notas de Firebase
-        const notas = await obtenerNotas();
+        const listaUI = document.getElementById('diary-list');
+        const mensajeVacio = document.getElementById('diary-empty');
+        if (!listaUI) return;
 
-        // 2. Si hay notas, limpiamos el contenedor
+        const notas = await obtenerNotas(); // Trae las notas de Firebase
+
         if (notas.length > 0) {
-            contenedor.innerHTML = ""; // Borra el mensaje de "vacío"
-            
+            if (mensajeVacio) mensajeVacio.style.display = 'none';
+            listaUI.innerHTML = ""; 
+
             notas.forEach(nota => {
-                // Creamos el diseño de la nota (puedes ajustar el HTML a tu gusto)
-                const fechaLegible = new Date(nota.fecha).toLocaleString();
-                
-                const divNota = document.createElement('div');
-                divNota.className = "diary-entry-card"; // Usa tus clases de CSS
-                divNota.style = "background: white; padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid #eee; box-shadow: 0 2px 5px rgba(0,0,0,0.05);";
-                
-                divNota.innerHTML = `
-                    <div style="font-size: 0.8rem; color: #888; margin-bottom: 5px;">
-                        📝 ${fechaLegible}
-                    </div>
-                    <div style="font-weight: bold; color: var(--mint-700);">${nota.titulo}</div>
-                    <div style="margin-top: 5px; color: #444;">${nota.contenido}</div>
+                const fecha = new Date(nota.fecha).toLocaleString();
+                const div = document.createElement('div');
+                div.style = "background: white; padding: 15px; border-radius: 12px; margin-bottom: 10px; border-left: 5px solid #a8e6cf; box-shadow: 0 2px 5px rgba(0,0,0,0.05);";
+                div.innerHTML = `
+                    <div style="font-size: 0.7rem; color: #888;">${fecha}</div>
+                    <div style="font-weight: bold; color: #333;">${nota.titulo}</div>
+                    <div style="color: #555; font-size: 0.9rem;">${nota.contenido}</div>
                 `;
-                
-                contenedor.appendChild(divNota);
+                listaUI.appendChild(div);
             });
         }
     }
 
-    // Función para guardar (mejorada para que actualice la lista al instante)
+    // Esta función se activa al darle al botón "Guardar"
     window.saveDiary = async function() {
         const textarea = document.getElementById('diary-txt');
         const moodBtn = document.querySelector('.mood-btn.active');
         const mood = moodBtn ? moodBtn.getAttribute('data-mood') : "✨";
-        const contenido = textarea.value;
+        const texto = textarea.value;
 
-        if (!contenido.trim()) {
-            alert("¡Cuéntame algo primero! 💕");
-            return;
-        }
+        if (!texto.trim()) return alert("¡Escribe algo!");
 
-        const titulo = mood + " - Entrada";
-        const exito = await guardarNota(titulo, contenido);
-
+        const exito = await guardarNota(mood + " - Entrada", texto);
         if (exito) {
-            textarea.value = ""; // Limpia el cuadro
-            alert("¡Guardado! ✨");
-            cargarHistorial(); // <--- RECARGA LA LISTA AUTOMÁTICAMENTE
+            textarea.value = "";
+            await cargarHistorial(); // Refresca la lista sin recargar la página
+            alert("¡Guardado en la nube! ✨");
         }
     };
 
-    // Al cargar la página, mostramos lo que ya hay en Firebase
+    // Esto hace que las notas aparezcan APENAS abres la página
     document.addEventListener("DOMContentLoaded", cargarHistorial);
-
-    console.log("✅ Sistema de diario con historial listo.");
 </script>
 </body>
 </html>

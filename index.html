@@ -1356,45 +1356,67 @@ document.addEventListener("DOMContentLoaded",()=>{
 });
 </script>
 <script type="module">
-    import { guardarNota } from './conexion.js';
+    import { guardarNota, obtenerNotas } from './conexion.js';
 
-    // 1. Definimos la función global para que el botón de tu HTML pueda encontrarla
+    // Función para mostrar las notas en el historial
+    async function cargarHistorial() {
+        const contenedor = document.getElementById('diary-list');
+        const avisoVacio = document.getElementById('diary-empty');
+        
+        // 1. Traemos las notas de Firebase
+        const notas = await obtenerNotas();
+
+        // 2. Si hay notas, limpiamos el contenedor
+        if (notas.length > 0) {
+            contenedor.innerHTML = ""; // Borra el mensaje de "vacío"
+            
+            notas.forEach(nota => {
+                // Creamos el diseño de la nota (puedes ajustar el HTML a tu gusto)
+                const fechaLegible = new Date(nota.fecha).toLocaleString();
+                
+                const divNota = document.createElement('div');
+                divNota.className = "diary-entry-card"; // Usa tus clases de CSS
+                divNota.style = "background: white; padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid #eee; box-shadow: 0 2px 5px rgba(0,0,0,0.05);";
+                
+                divNota.innerHTML = `
+                    <div style="font-size: 0.8rem; color: #888; margin-bottom: 5px;">
+                        📝 ${fechaLegible}
+                    </div>
+                    <div style="font-weight: bold; color: var(--mint-700);">${nota.titulo}</div>
+                    <div style="margin-top: 5px; color: #444;">${nota.contenido}</div>
+                `;
+                
+                contenedor.appendChild(divNota);
+            });
+        }
+    }
+
+    // Función para guardar (mejorada para que actualice la lista al instante)
     window.saveDiary = async function() {
-        // Buscamos el cuadro de texto por su ID real: "diary-txt"
         const textarea = document.getElementById('diary-txt');
-        
-        // Buscamos si seleccionaste un emoji (buscamos el botón que tenga la clase 'active')
         const moodBtn = document.querySelector('.mood-btn.active');
-        const mood = moodBtn ? moodBtn.getAttribute('data-mood') : "Sin emoji";
-        
+        const mood = moodBtn ? moodBtn.getAttribute('data-mood') : "✨";
         const contenido = textarea.value;
 
-        // Validación: si está vacío no hacemos nada
-        if (contenido.trim() === "") {
-            alert("¡El diario está vacío! Cuéntame algo primero 💕");
+        if (!contenido.trim()) {
+            alert("¡Cuéntame algo primero! 💕");
             return;
         }
 
-        // Título que incluye el emoji y la fecha
-        const tituloFinal = `${mood} - Entrada del ${new Date().toLocaleDateString()}`;
-
-        // Llamamos a la conexión de Firebase
-        const exito = await guardarNota(tituloFinal, contenido);
+        const titulo = mood + " - Entrada";
+        const exito = await guardarNota(titulo, contenido);
 
         if (exito) {
-            alert("¡Tu entrada se guardó en la nube de Firebase! ✨");
-            textarea.value = ""; // Limpiamos el cuadro
-            
-            // Si tienes una función para mostrar la nota en la lista de abajo, la llamas aquí:
-            if (typeof renderDiary === "function") {
-                renderDiary(); 
-            }
-        } else {
-            alert("Hubo un problema con la conexión. Revisa las reglas de Firebase.");
+            textarea.value = ""; // Limpia el cuadro
+            alert("¡Guardado! ✨");
+            cargarHistorial(); // <--- RECARGA LA LISTA AUTOMÁTICAMENTE
         }
     };
 
-    console.log("✅ Sistema de diario conectado a Firebase y listo para usar.");
+    // Al cargar la página, mostramos lo que ya hay en Firebase
+    document.addEventListener("DOMContentLoaded", cargarHistorial);
+
+    console.log("✅ Sistema de diario con historial listo.");
 </script>
 </body>
 </html>
